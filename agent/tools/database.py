@@ -167,6 +167,19 @@ def list_reminders_db() -> list:
     except sqlite3.Error as e:
         logger.error(f"Failed to list reminders: {e}")
         return []
+def remove_reminder_db(reminder_id: int) -> bool:
+    """Removes a reminder by its ID using parameterized queries."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM reminders WHERE id = ?", (reminder_id,))
+        conn.commit()
+        logger.info(f"Removed reminder ID: {reminder_id}")
+        return True
+    except sqlite3.Error as e:
+        logger.error(f"Failed to remove reminder {reminder_id}: {e}")
+        conn.rollback()
+        return False
     finally:
         conn.close()
 

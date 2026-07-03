@@ -135,4 +135,4 @@ Run the evaluation suite to run all 10 test scenarios and automatically generate
 ```bash
 python eval/evaluator.py
 ```
-This updates the [results.md](file:///c:/Users/vjata/Desktop/Projects/5DayAgenticAI_Kaggle/CapstoneProject/medmate/eval/results.md) file.
+This updates the [results.md](path/to/file/medmate/eval/<RESULTS_FILE>.md) file.

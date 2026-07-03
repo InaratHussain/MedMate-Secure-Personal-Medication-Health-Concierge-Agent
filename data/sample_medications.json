@@ -5,33 +5,5 @@
     "severity": "Moderate",
     "description": "Combining ibuprofen and aspirin can increase the risk of gastrointestinal ulcers and bleeding. It may also decrease the cardioprotective effect of low-dose aspirin.",
     "advice": "Consult your doctor before using these together. Monitor for signs of bleeding."
-  },
-  {
-    "drug1": "warfarin",
-    "drug2": "aspirin",
-    "severity": "Severe",
-    "description": "Concomitant use of warfarin and aspirin significantly increases the risk of serious bleeding events.",
-    "advice": "Avoid combination unless explicitly directed and closely monitored by a physician. Seek immediate medical attention if unusual bleeding or bruising occurs."
-  },
-  {
-    "drug1": "warfarin",
-    "drug2": "ibuprofen",
-    "severity": "Severe",
-    "description": "NSAIDs like ibuprofen can cause stomach ulcers and bleeding, and they also thin the blood, dramatically increasing the risk of severe bleeding when taken with warfarin.",
-    "advice": "Do not take ibuprofen while on warfarin unless prescribed by your doctor. Use alternative pain relievers like acetaminophen if approved."
-  },
-  {
-    "drug1": "sildenafil",
-    "drug2": "nitroglycerin",
-    "severity": "Critical",
-    "description": "Nitroglycerin combined with sildenafil can cause a sudden, severe, and life-threatening drop in blood pressure.",
-    "advice": "NEVER use sildenafil if you are taking nitroglycerin or other nitrates. Seek emergency medical services immediately if chest pain occurs."
-  },
-  {
-    "drug1": "lisinopril",
-    "drug2": "potassium",
-    "severity": "Moderate",
-    "description": "Lisinopril is an ACE inhibitor that can increase potassium levels in your blood. Taking it with potassium supplements can lead to dangerously high potassium levels (hyperkalemia).",
-    "advice": "Monitor blood potassium levels. Do not take potassium supplements or use salt substitutes containing potassium without consulting your healthcare provider."
   }
 ]

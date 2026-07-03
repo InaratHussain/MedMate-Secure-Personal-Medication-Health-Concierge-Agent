@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from medmate.agent.root_agent import run_agent
-from medmate.agent.tools.database import list_medications_db, list_reminders_db, add_medication_db, remove_medication_db, add_reminder_db
+from medmate.agent.tools.database import list_medications_db, list_reminders_db, add_medication_db, remove_medication_db, add_reminder_db, remove_reminder_db
 from medmate.agent.tools.interaction_checker import check_interactions
 from medmate.agent.tools.prescription_summary import summarize_prescription
 
@@ -22,14 +22,30 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
     
+    :root {
+        --text-muted: #94a3b8;
+        --disclaimer-color: #fca5a5;
+        --disclaimer-bg: rgba(239, 68, 68, 0.05);
+        --disclaimer-border: rgba(239, 68, 68, 0.2);
+    }
+    
+    @media (prefers-color-scheme: light) {
+        :root {
+            --text-muted: #475569;
+            --disclaimer-color: #b91c1c;
+            --disclaimer-bg: rgba(239, 68, 68, 0.03);
+            --disclaimer-border: rgba(239, 68, 68, 0.3);
+        }
+    }
+    
     html, body, [class*="css"] {
         font-family: 'Outfit', sans-serif;
     }
     
-    /* Sleek gradient top border */
+    /* Sleek adaptive background styling */
     .stApp {
-        background-color: #0b0f19;
-        color: #f1f5f9;
+        background-color: var(--background-color);
+        color: var(--text-color);
     }
     
     /* Header Gradient styling */
@@ -44,18 +60,18 @@ st.markdown("""
     
     .subtitle {
         font-size: 1.1rem;
-        color: #94a3b8;
+        color: var(--text-muted);
         margin-bottom: 2rem;
     }
     
     /* Premium glassmorphism container cards */
     .card {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: var(--secondary-background-color);
+        border: 1px solid rgba(128, 128, 128, 0.15);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
     
     .med-card {
@@ -67,7 +83,7 @@ st.markdown("""
         padding: 0.8rem 1.2rem;
     }
     
-    /* Styled buttons and interactive components */
+    /* Styled buttons and interactive elements */
     .stButton>button {
         background: linear-gradient(135deg, #10b981, #059669);
         color: white;
@@ -85,16 +101,16 @@ st.markdown("""
     
     /* Sidebar customization */
     [data-testid="stSidebar"] {
-        background-color: #0f172a;
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        background-color: var(--secondary-background-color);
+        border-right: 1px solid rgba(128, 128, 128, 0.15);
     }
     
     /* Disclaimers */
     .medical-disclaimer {
         font-size: 0.85rem;
-        color: #fca5a5;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        background-color: rgba(239, 68, 68, 0.05);
+        color: var(--disclaimer-color);
+        border: 1px solid var(--disclaimer-border);
+        background-color: var(--disclaimer-bg);
         border-radius: 8px;
         padding: 0.8rem;
         margin-top: 1.5rem;
@@ -127,7 +143,7 @@ def render_status():
 # ----------------- SIDEBAR CONTENT -----------------
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/medical-doctor.png", width=70)
-    st.markdown("### 🏥 MedMate Concierge")
+    st.markdown("### 🏥 MedMate")
     st.markdown("Your secure medication organizer and interaction checker.")
     st.markdown("---")
     
@@ -138,7 +154,7 @@ with st.sidebar:
             st.html(f"""
             <div class="card med-card">
                 <strong>{med['name'].capitalize()}</strong> ({med['dose']})<br/>
-                <span style="font-size:0.85rem; color:#94a3b8;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">
                     🔄 {med['frequency']}<br/>
                     📅 Start: {med['start_date']}<br/>
                     {f"📅 End: {med['end_date']}<br/>" if med['end_date'] else ""}
@@ -163,17 +179,101 @@ with st.sidebar:
             st.html(f"""
             <div class="card reminder-card">
                 <strong>{rem['medication_name'].capitalize()}</strong><br/>
-                <span style="font-size:0.85rem; color:#94a3b8;">🕒 Scheduled for {rem['reminder_time']}</span>
+                <span style="font-size:0.85rem; color:var(--text-muted);">🕒 Scheduled for {rem['reminder_time']}</span>
             </div>
             """)
+            if st.button(f"🗑️ Delete Reminder", key=f"del_rem_{rem['id']}"):
+                remove_reminder_db(rem['id'])
+                st.session_state.status_message = ("success", f"Successfully deleted reminder for {rem['medication_name'].capitalize()} at {rem['reminder_time']}.")
+                st.rerun()
     else:
         st.info("No reminders scheduled yet.")
 
 # ----------------- MAIN INTERFACE -----------------
-st.markdown('<h1 class="main-title">MedMate Concierge</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-title">MedMate</h1>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Secure Personal Medication Assistant & Drug Safety Guard</div>', unsafe_allow_html=True)
 
 render_status()
+
+# ----------------- BACKGROUND REMINDER ALARM SYSTEM -----------------
+reminders_data = list_reminders_db()
+if reminders_data:
+    import json
+    rem_list = [{"name": r['medication_name'].capitalize(), "time": r['reminder_time']} for r in reminders_data]
+    rem_json = json.dumps(rem_list)
+    # Inject background alarm script inside a hidden component
+    st.components.v1.html(f"""
+        <script>
+        const reminders = {rem_json};
+        const triggered = new Set();
+        function startAlarm() {{
+            try {{
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return null;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                const mainGain = ctx.createGain();
+
+                osc.frequency.value = 880;
+                osc.type = "sine";
+
+                lfo.frequency.value = 1.5; // 1.5 Hz pulse rate
+                lfo.type = "square";
+
+                lfoGain.gain.value = 0.2; // Volume modulation range
+                lfo.connect(lfoGain);
+                lfoGain.connect(mainGain.gain);
+
+                mainGain.gain.value = 0.2; // Base volume
+
+                osc.connect(mainGain);
+                mainGain.connect(ctx.destination);
+
+                osc.start();
+                lfo.start();
+                
+                return {{ ctx, osc, lfo }};
+            }} catch (e) {{
+                console.error("Audio Context error:", e);
+                return null;
+            }}
+        }}
+        
+        function checkTime() {{
+            const now = new Date();
+            const hrs = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const currentStr = hrs + ":" + mins;
+            
+            reminders.forEach(rem => {{
+                if (rem.time === currentStr) {{
+                    const triggerKey = rem.name + "_" + currentStr;
+                    if (!triggered.has(triggerKey)) {{
+                        triggered.add(triggerKey);
+                        const alarm = startAlarm();
+                        setTimeout(() => {{
+                            alert("🏥 MedMate Reminder: Time to take your " + rem.name + "!");
+                            if (alarm) {{
+                                try {{
+                                    alarm.osc.stop();
+                                    alarm.lfo.stop();
+                                    alarm.ctx.close();
+                                }} catch (err) {{
+                                    console.error(err);
+                                }}
+                            }}
+                        }}, 100);
+                    }}
+                }}
+            }});
+        }}
+        
+        setInterval(checkTime, 5000);
+        checkTime();
+        </script>
+    """, height=0)
 
 # Tabs for features
 tab_chat, tab_add, tab_interactions, tab_summary = st.tabs([
@@ -277,7 +377,7 @@ with tab_interactions:
         if len(med_list) < 2:
             st.error("Please select or enter at least two medications to perform interaction check.")
         else:
-            with st.spinner("Checking RxNav interaction database..."):
+            with st.spinner("Checking interaction online via openFDA..."):
                 interaction_result = check_interactions(med_list)
                 st.markdown(interaction_result)
 
