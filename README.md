@@ -1,4 +1,4 @@
-# MedMate — Secure Personal Medication & Health Concierge Agent
+# MedMate: Secure Personal Medication & Health Concierge Agent
 
 MedMate is a production-quality AI-powered concierge agent that helps users safely manage their medications, identify drug interactions, schedule reminders, and simplify medical prescriptions. Built with the **Google Agent Development Kit (ADK)**, **Gemini 2.5 Flash**, **Streamlit**, and **SQLite**, MedMate focuses on security, privacy, and safety.
 
