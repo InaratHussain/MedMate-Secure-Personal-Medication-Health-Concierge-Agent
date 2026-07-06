@@ -81,7 +81,6 @@ medmate/
 1. **Clone the repository**:
    ```bash
    git clone <repository_url>
-   #Rename the folder as medmate
    cd medmate
    ```
 
@@ -137,4 +136,3 @@ Run the evaluation suite to run all 10 test scenarios and automatically generate
 ```bash
 python eval/evaluator.py
 ```
-This updates the [results.md](path/to/file/medmate/eval/<RESULTS_FILE>.md) file.
